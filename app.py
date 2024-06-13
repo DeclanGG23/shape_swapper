@@ -37,7 +37,7 @@ def generate_steps(initial_shapes, goal_shapes):
                                     new_i = current_shapes[i].replace(char_i, char_j, 1)
                                     new_j = current_shapes[j].replace(char_j, char_i, 1)
                                     current_shapes[i], current_shapes[j] = new_i, new_j
-                                    steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+                                    steps.append(f"Swap {shape_names[char_i]} from statue {i+1} with {shape_names[char_j]} from statue {j+1}")
                                     found = True
                                     break
                             if found:
@@ -47,7 +47,7 @@ def generate_steps(initial_shapes, goal_shapes):
             if not found:
                 # If no valid swaps found, break to avoid infinite loop
                 break
-    return steps
+    return steps, current_shapes
 
 def main():
     st.title('Shape Swapper App')
@@ -79,17 +79,23 @@ def main():
                 goal_shapes = generate_goal_shapes(stored_input)
 
                 # Generate steps to reach the goal
-                steps = generate_steps(initial_shapes, goal_shapes)
+                steps, final_shapes = generate_steps(initial_shapes, goal_shapes)
 
-                # Display results
-                st.write(f"Stored abbreviation: {stored_input}")
-                st.write(f"Goal shapes: {', '.join(goal_shapes)}")
-                st.write("Steps to achieve the goal:")
-                if steps:
-                    for i, step in enumerate(steps):
-                        st.write(f"Step {i+1}: {step}")
+                # Check if the goal shapes were achieved
+                if final_shapes == goal_shapes:
+                    # Display results
+                    st.write(f"Stored abbreviation: {stored_input}")
+                    st.write(f"Goal shapes: {', '.join(goal_shapes)}")
+                    st.write("Steps to achieve the goal:")
+                    if steps:
+                        for i, step in enumerate(steps):
+                            st.write(f"Step {i+1}: {step}")
+                    else:
+                        st.write("No swaps needed, already in goal state.")
                 else:
-                    st.write("No swaps needed, already in goal state.")
+                    st.write(f"Stored abbreviation: {stored_input}")
+                    st.write(f"Goal shapes: {', '.join(goal_shapes)}")
+                    st.write("No possible swaps can achieve the goal state with the given shapes.")
             except KeyError:
                 st.error("Invalid shape entered. Please check your inputs.")
         else:
