@@ -1,8 +1,6 @@
 
 import streamlit as st
 
-import logging
-
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
@@ -36,6 +34,15 @@ def perform_swap(current_shapes, swap):
     new_shapes = current_shapes[:]
     new_shapes[i], new_shapes[j] = new_shapes[j], new_shapes[i]
     return new_shapes
+
+# Function to generate the goal shapes based on the input abbreviation
+def generate_goal_shapes(stored_input):
+    shapes = ['C', 'S', 'T']
+    goal_shapes = []
+    for letter in stored_input:
+        remaining_shapes = ''.join(sorted([s for s in shapes if s != letter]))
+        goal_shapes.append(remaining_shapes)
+    return goal_shapes
 
 # Function to solve the shapes
 def solve_shapes(initial_shapes, goal_shapes):
