@@ -75,7 +75,10 @@ def shapes_match(final_shapes, goal_shapes):
     return normalized_final_shapes == normalized_goal_shapes
 
 
-# Move this block to the end of the file
-if __name__ == "__main__":
-    main()
+def get_user_input():
+  st.title("Shape Swapper App")
+  st.write("Enter the initial shapes (C, S, T) and the target abbreviation to see the steps needed to rearrange the shapes.")
+  initial_shape1 = st.text_input("Shape 1", "")
+  initial_shape2 = st.text_input("Shape 2
+
 
