@@ -33,6 +33,7 @@ def solve_slot(current_shapes, slot_index, goal_shape, steps, shape_names):
                         current_shapes[slot_index] = current_shapes[slot_index].replace(incorrect_char, char, 1)
                         current_shapes[i] = current_shapes[i].replace(char, incorrect_char, 1)
                         steps.append(f"Swap {shape_names[incorrect_char]} from shape {slot_index+1} with {shape_names[char]} from shape {i+1}")
+                        print(f"After swap: {current_shapes}")  # Debug statement
                         return  # Perform only one swap at a time
 
 def generate_steps(initial_shapes, goal_shapes):
@@ -41,14 +42,20 @@ def generate_steps(initial_shapes, goal_shapes):
     goal_shapes = [normalize(shape) for shape in goal_shapes]
     shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
 
+    print(f"Initial shapes: {current_shapes}")  # Debug statement
+    print(f"Goal shapes: {goal_shapes}")  # Debug statement
+
     # Solve the first slot completely
     solve_slot(current_shapes, 0, goal_shapes[0], steps, shape_names)
+    print(f"After solving first slot: {current_shapes}")  # Debug statement
     
     # Now, handle slots 2 and 3 if they are not already correct
     if current_shapes[1] != goal_shapes[1] or current_shapes[2] != goal_shapes[2]:
         solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
+        print(f"After solving second slot: {current_shapes}")  # Debug statement
         if current_shapes[2] != goal_shapes[2]:
             solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
+            print(f"After solving third slot: {current_shapes}")  # Debug statement
 
     return steps, current_shapes
 
@@ -99,6 +106,7 @@ def main():
                     st.write(f"Stored abbreviation: {stored_input}")
                     st.write(f"Goal shapes: {', '.join(goal_shapes)}")
                     st.write("No possible swaps can achieve the goal state with the given shapes.")
+                    st.write(f"Final shapes: {final_shapes}")  # Debug statement
             except KeyError:
                 st.error("Invalid shape entered. Please check your inputs.")
         else:
