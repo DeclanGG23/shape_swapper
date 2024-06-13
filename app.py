@@ -21,6 +21,8 @@ def normalize(shape):
 
 def solve_slot(current_shapes, slot_index, goal_shape, steps, shape_names):
     goal_shape = normalize(goal_shape)
+    if normalize(current_shapes[slot_index]) == goal_shape:
+        return  # Slot is already correct, no need to alter it
     for i in range(len(current_shapes)):
         if i != slot_index:
             needed_chars = [c for c in goal_shape if c not in current_shapes[slot_index]]
@@ -50,12 +52,10 @@ def generate_steps(initial_shapes, goal_shapes):
     print(f"After solving first slot: {current_shapes}")  # Debug statement
     
     # Now, handle slots 2 and 3 if they are not already correct
-    if current_shapes[1] != goal_shapes[1] or current_shapes[2] != goal_shapes[2]:
-        solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
-        print(f"After solving second slot: {current_shapes}")  # Debug statement
-        if current_shapes[2] != goal_shapes[2]:
-            solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
-            print(f"After solving third slot: {current_shapes}")  # Debug statement
+    solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
+    print(f"After solving second slot: {current_shapes}")  # Debug statement
+    solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
+    print(f"After solving third slot: {current_shapes}")  # Debug statement
 
     return steps, current_shapes
 
