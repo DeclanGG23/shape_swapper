@@ -1,77 +1,83 @@
 
 import streamlit as st
 
-shape_map = {
-    "TT": "pyramid", "TS": "prism", "TC": "cone",
-    "SS": "cube", "SC": "cylinder", "CC": "sphere",
-    "ST": "prism", "CT": "cone", "CS": "cylinder"
-}
+import logging
 
-# Function to generate the goal shapes based on the input abbreviation
-def generate_goal_shapes(stored_input):
-    shapes = ['C', 'S', 'T']
-    goal_shapes = []
-    for letter in stored_input:
-        remaining_shapes = ''.join(sorted([s for s in shapes if s != letter]))
-        goal_shapes.append(remaining_shapes)
-    return goal_shapes
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
-def normalize(shape):
+# Function to normalize shapes
+def normalize_shape(shape):
     return ''.join(sorted(shape))
 
-def find_best_swap(current_shapes, goal_shapes):
-    best_swap = None
-    min_mismatches = float('inf')
-    
+# Function to check if the state matches the goal
+def matches_goal(current_shapes, goal_shapes):
+    return all(normalize_shape(current_shapes[i]) == normalize_shape(goal_shapes[i]) for i in range(len(current_shapes)))
+
+# Function to calculate mismatches between current and goal shapes
+def calculate_mismatches(current_shapes, goal_shapes):
+    mismatches = 0
+    for i in range(len(current_shapes)):
+        if normalize_shape(current_shapes[i]) != normalize_shape(goal_shapes[i]):
+            mismatches += 1
+    return mismatches
+
+# Function to generate possible swaps
+def generate_possible_swaps(current_shapes):
+    swaps = []
     for i in range(len(current_shapes)):
         for j in range(i + 1, len(current_shapes)):
-            for char_i in current_shapes[i]:
-                if char_i not in goal_shapes[i]:
-                    for char_j in current_shapes[j]:
-                        if char_j not in goal_shapes[j]:
-                            # Perform the swap
-                            new_shapes = current_shapes[:]
-                            new_shapes[i] = new_shapes[i].replace(char_i, char_j, 1)
-                            new_shapes[j] = new_shapes[j].replace(char_j, char_i, 1)
-                            
-                            # Count mismatches
-                            mismatches = sum(1 for k in range(len(new_shapes)) if normalize(new_shapes[k]) != normalize(goal_shapes[k]))
-                            
-                            # Check if this swap reduces mismatches
-                            if mismatches < min_mismatches:
-                                min_mismatches = mismatches
-                                best_swap = (i, j, char_i, char_j)
-                                print(f"Considered swap: {char_i} from shape {i+1} with {char_j} from shape {j+1}")
-                                print(f"Resulting shapes: {new_shapes}")
-                                print(f"Mismatches: {mismatches}")
-    
-    return best_swap
+            swaps.append((i, j))
+    return swaps
 
-def generate_steps(initial_shapes, goal_shapes):
+# Function to perform a swap
+def perform_swap(current_shapes, swap):
+    i, j = swap
+    new_shapes = current_shapes[:]
+    new_shapes[i], new_shapes[j] = new_shapes[j], new_shapes[i]
+    return new_shapes
+
+# Function to solve the shapes
+def solve_shapes(initial_shapes, goal_shapes):
+    current_shapes = initial_shapes[:]
     steps = []
-    current_shapes = [normalize(shape) for shape in initial_shapes]
-    goal_shapes = [normalize(shape) for shape in goal_shapes]
+    performed_swaps = set()
 
-    print(f"Initial shapes: {current_shapes}")  # Debug statement
-    print(f"Goal shapes: {goal_shapes}")  # Debug statement
+    logging.info(f"Initial shapes: {current_shapes}")
+    logging.info(f"Goal shapes: {goal_shapes}")
 
-    while current_shapes != goal_shapes:
-        swap = find_best_swap(current_shapes, goal_shapes)
-        if not swap:
+    while not matches_goal(current_shapes, goal_shapes):
+        swaps = generate_possible_swaps(current_shapes)
+        logging.info(f"Available swaps: {swaps}")
+
+        best_swap = None
+        min_mismatches = calculate_mismatches(current_shapes, goal_shapes)
+        
+        for swap in swaps:
+            if swap in performed_swaps or (swap[1], swap[0]) in performed_swaps:
+                continue  # Skip redundant swaps
+            new_shapes = perform_swap(current_shapes, swap)
+            mismatches = calculate_mismatches(new_shapes, goal_shapes)
+            logging.info(f"Trying swap: {swap} -> {new_shapes}, Mismatches: {mismatches}")
+
+            if mismatches < min_mismatches:
+                min_mismatches = mismatches
+                best_swap = swap
+                logging.info(f"Best swap so far: {swap} -> {new_shapes}, Mismatches: {mismatches}")
+
+        if best_swap:
+            performed_swaps.add(best_swap)
+            current_shapes = perform_swap(current_shapes, best_swap)
+            steps.append(f"Swap {best_swap[0] + 1} with {best_swap[1] + 1}")
+            logging.info(f"Performed best swap: {best_swap}, Current shapes: {current_shapes}")
+        else:
+            logging.info("No valid swaps found. Ending process.")
             break
-        i, j, char_i, char_j = swap
-        current_shapes[i] = current_shapes[i].replace(char_i, char_j, 1)
-        current_shapes[j] = current_shapes[j].replace(char_j, char_i, 1)
-        steps.append(f"Swap {char_i} from shape {i+1} with {char_j} from shape {j+1}")
-        print(f"After swap: {current_shapes}")  # Debug statement
 
+    logging.info(f"Final shapes: {current_shapes}")
     return steps, current_shapes
 
-def shapes_match(final_shapes, goal_shapes):
-    normalized_final_shapes = [normalize(shape) for shape in final_shapes]
-    normalized_goal_shapes = [normalize(shape) for shape in goal_shapes]
-    return normalized_final_shapes == normalized_goal_shapes
-
+# Streamlit app
 def main():
     st.title('Shape Swapper App')
     st.write("Enter the initial shapes and the target abbreviation to see the steps needed to rearrange the shapes.")
@@ -109,10 +115,10 @@ def main():
                 goal_shapes = generate_goal_shapes(stored_input)
 
                 # Generate steps to reach the goal
-                steps, final_shapes = generate_steps(initial_shapes, goal_shapes)
+                steps, final_shapes = solve_shapes(initial_shapes, goal_shapes)
 
                 # Check if the goal shapes were achieved
-                if shapes_match(final_shapes, goal_shapes):
+                if matches_goal(final_shapes, goal_shapes):
                     # Display results
                     st.write(f"Stored abbreviation: {stored_input}")
                     st.write(f"Goal shapes: {', '.join(goal_shapes)}")
