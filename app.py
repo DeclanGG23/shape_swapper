@@ -1,9 +1,6 @@
 
 import streamlit as st
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(message)s')
-
 # Function to normalize shapes
 def normalize_shape(shape):
     return ''.join(sorted(shape))
@@ -50,12 +47,12 @@ def solve_shapes(initial_shapes, goal_shapes):
     steps = []
     performed_swaps = set()
 
-    logging.info(f"Initial shapes: {current_shapes}")
-    logging.info(f"Goal shapes: {goal_shapes}")
+    st.write(f"Initial shapes: {current_shapes}")
+    st.write(f"Goal shapes: {goal_shapes}")
 
     while not matches_goal(current_shapes, goal_shapes):
         swaps = generate_possible_swaps(current_shapes)
-        logging.info(f"Available swaps: {swaps}")
+        st.write(f"Available swaps: {swaps}")
 
         best_swap = None
         min_mismatches = calculate_mismatches(current_shapes, goal_shapes)
@@ -65,23 +62,23 @@ def solve_shapes(initial_shapes, goal_shapes):
                 continue  # Skip redundant swaps
             new_shapes = perform_swap(current_shapes, swap)
             mismatches = calculate_mismatches(new_shapes, goal_shapes)
-            logging.info(f"Trying swap: {swap} -> {new_shapes}, Mismatches: {mismatches}")
+            st.write(f"Trying swap: {swap} -> {new_shapes}, Mismatches: {mismatches}")
 
             if mismatches < min_mismatches:
                 min_mismatches = mismatches
                 best_swap = swap
-                logging.info(f"Best swap so far: {swap} -> {new_shapes}, Mismatches: {mismatches}")
+                st.write(f"Best swap so far: {swap} -> {new_shapes}, Mismatches: {mismatches}")
 
         if best_swap:
             performed_swaps.add(best_swap)
             current_shapes = perform_swap(current_shapes, best_swap)
             steps.append(f"Swap {best_swap[0] + 1} with {best_swap[1] + 1}")
-            logging.info(f"Performed best swap: {best_swap}, Current shapes: {current_shapes}")
+            st.write(f"Performed best swap: {best_swap}, Current shapes: {current_shapes}")
         else:
-            logging.info("No valid swaps found. Ending process.")
+            st.write("No valid swaps found. Ending process.")
             break
 
-    logging.info(f"Final shapes: {current_shapes}")
+    st.write(f"Final shapes: {current_shapes}")
     return steps, current_shapes
 
 # Streamlit app
