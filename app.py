@@ -75,10 +75,7 @@ def shapes_match(final_shapes, goal_shapes):
     return normalized_final_shapes == normalized_goal_shapes
 
 
-def main():
-    # ... rest of your code ...
-
+# Move this block to the end of the file
 if __name__ == "__main__":
     main()
-
 
