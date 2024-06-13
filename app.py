@@ -2,6 +2,9 @@
 import streamlit as st
 
 # Function to normalize shapes
+import streamlit as st
+from functools import lru_cache
+
 def normalize_shape(shape):
     return ''.join(sorted(shape))
 
@@ -54,3 +57,6 @@ def solve_shapes(initial_shapes, goal_shapes):
             break  # No beneficial swaps found
 
     return steps, list(current_shapes)
+
+# Streamlit app part remains the same
+
