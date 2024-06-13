@@ -37,7 +37,7 @@ def generate_steps(initial_shapes, goal_shapes):
                                     new_i = current_shapes[i].replace(char_i, char_j, 1)
                                     new_j = current_shapes[j].replace(char_j, char_i, 1)
                                     current_shapes[i], current_shapes[j] = new_i, new_j
-                                    steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+                                    steps.append(f"Swap {shape_names[char_i]} from statue {i+1} with {shape_names[char_j]} from statue {j+1}")
                                     found = True
                                     break
                             if found:
