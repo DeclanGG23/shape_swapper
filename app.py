@@ -23,32 +23,31 @@ def generate_steps(initial_shapes, goal_shapes):
     current_shapes = initial_shapes[:]
     shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
 
-    while current_shapes != goal_shapes:
-        made_swap = False
-        for i in range(3):
-            if current_shapes[i] != goal_shapes[i]:
-                for j in range(3):
-                    if i != j:
-                        for char_i in current_shapes[i]:
-                            if char_i not in goal_shapes[i]:
-                                for char_j in current_shapes[j]:
-                                    if char_j in goal_shapes[i] and char_j not in current_shapes[i]:
-                                        # Perform the swap
-                                        new_i = current_shapes[i].replace(char_i, char_j, 1)
-                                        new_j = current_shapes[j].replace(char_j, char_i, 1)
-                                        current_shapes[i], current_shapes[j] = new_i, new_j
-                                        steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
-                                        made_swap = True
-                                        break
-                                if made_swap:
-                                    break
-                        if made_swap:
-                            break
-                if made_swap:
-                    break
-        if not made_swap:
-            break  # No valid swap found, exit the loop
+    # Solve the first slot completely
+    solve_slot(current_shapes, 0, goal_shapes[0], steps, shape_names)
+    
+    # Now, handle slots 2 and 3 if they are not already correct
+    if current_shapes[1] != goal_shapes[1] or current_shapes[2] != goal_shapes[2]:
+        solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
+        if current_shapes[2] != goal_shapes[2]:
+            solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
+
     return steps, current_shapes
+
+def solve_slot(current_shapes, slot_index, goal_shape, steps, shape_names):
+    for i in range(len(current_shapes)):
+        if i != slot_index:
+            needed_chars = [c for c in goal_shape if c not in current_shapes[slot_index]]
+            for char in needed_chars:
+                if char in current_shapes[i]:
+                    # Swap the first incorrect char from the slot with the needed char
+                    incorrect_chars = [c for c in current_shapes[slot_index] if c not in goal_shape]
+                    if incorrect_chars:
+                        incorrect_char = incorrect_chars[0]
+                        current_shapes[slot_index] = current_shapes[slot_index].replace(incorrect_char, char, 1)
+                        current_shapes[i] = current_shapes[i].replace(char, incorrect_char, 1)
+                        steps.append(f"Swap {shape_names[incorrect_char]} from shape {slot_index+1} with {shape_names[char]} from shape {i+1}")
+                        return  # Perform only one swap at a time
 
 def main():
     st.title('Shape Swapper App')
