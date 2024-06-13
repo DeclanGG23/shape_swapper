@@ -50,6 +50,9 @@ def generate_steps(initial_shapes, goal_shapes):
     goal_shapes = [normalize(shape) for shape in goal_shapes]
     shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
 
+    print(f"Initial shapes: {current_shapes}")  # Debug statement
+    print(f"Goal shapes: {goal_shapes}")  # Debug statement
+
     while current_shapes != goal_shapes:
         swap = find_best_swap(current_shapes, goal_shapes, shape_names)
         if not swap:
