@@ -19,7 +19,7 @@ def generate_goal_shapes(stored_input):
 def normalize(shape):
     return ''.join(sorted(shape))
 
-def find_best_swap(current_shapes, goal_shapes, shape_names):
+def find_best_swap(current_shapes, goal_shapes):
     best_swap = None
     min_mismatches = float('inf')
     
@@ -41,7 +41,7 @@ def find_best_swap(current_shapes, goal_shapes, shape_names):
                             if mismatches < min_mismatches:
                                 min_mismatches = mismatches
                                 best_swap = (i, j, char_i, char_j)
-                                print(f"Considered swap: {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+                                print(f"Considered swap: {char_i} from shape {i+1} with {char_j} from shape {j+1}")
                                 print(f"Resulting shapes: {new_shapes}")
                                 print(f"Mismatches: {mismatches}")
     
@@ -51,19 +51,18 @@ def generate_steps(initial_shapes, goal_shapes):
     steps = []
     current_shapes = [normalize(shape) for shape in initial_shapes]
     goal_shapes = [normalize(shape) for shape in goal_shapes]
-    shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
 
     print(f"Initial shapes: {current_shapes}")  # Debug statement
     print(f"Goal shapes: {goal_shapes}")  # Debug statement
 
     while current_shapes != goal_shapes:
-        swap = find_best_swap(current_shapes, goal_shapes, shape_names)
+        swap = find_best_swap(current_shapes, goal_shapes)
         if not swap:
             break
         i, j, char_i, char_j = swap
         current_shapes[i] = current_shapes[i].replace(char_i, char_j, 1)
         current_shapes[j] = current_shapes[j].replace(char_j, char_i, 1)
-        steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+        steps.append(f"Swap {char_i} from shape {i+1} with {char_j} from shape {j+1}")
         print(f"After swap: {current_shapes}")  # Debug statement
 
     return steps, current_shapes
@@ -96,8 +95,15 @@ def main():
         if stored_input and shape1 and shape2 and shape3:
             try:
                 # Map the 3D shape names to their 2D shape abbreviations
-                inverse_shape_map = {v: k for k, v in shape_map.items()}
-                initial_shapes = [inverse_shape_map[shape1], inverse_shape_map[shape2], inverse_shape_map[shape3]]
+                inverse_shape_map = {
+                    "pyramid": "TT", "prism": "TS", "cone": "TC",
+                    "cube": "SS", "cylinder": "SC", "sphere": "CC"
+                }
+                initial_shapes = [
+                    inverse_shape_map[shape1], 
+                    inverse_shape_map[shape2], 
+                    inverse_shape_map[shape3]
+                ]
 
                 # Generate goal shapes
                 goal_shapes = generate_goal_shapes(stored_input)
