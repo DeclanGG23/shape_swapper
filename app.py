@@ -41,6 +41,9 @@ def find_best_swap(current_shapes, goal_shapes, shape_names):
                             if mismatches < min_mismatches:
                                 min_mismatches = mismatches
                                 best_swap = (i, j, char_i, char_j)
+                                print(f"Considered swap: {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+                                print(f"Resulting shapes: {new_shapes}")
+                                print(f"Mismatches: {mismatches}")
     
     return best_swap
 
