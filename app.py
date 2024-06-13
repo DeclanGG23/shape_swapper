@@ -19,24 +19,30 @@ def generate_goal_shapes(stored_input):
 def normalize(shape):
     return ''.join(sorted(shape))
 
-def solve_slot(current_shapes, slot_index, goal_shape, steps, shape_names):
-    goal_shape = normalize(goal_shape)
-    if normalize(current_shapes[slot_index]) == goal_shape:
-        return  # Slot is already correct, no need to alter it
+def find_best_swap(current_shapes, goal_shapes, shape_names):
+    best_swap = None
+    min_mismatches = float('inf')
+    
     for i in range(len(current_shapes)):
-        if i != slot_index:
-            needed_chars = [c for c in goal_shape if c not in current_shapes[slot_index]]
-            for char in needed_chars:
-                if char in current_shapes[i]:
-                    # Swap the first incorrect char from the slot with the needed char
-                    incorrect_chars = [c for c in current_shapes[slot_index] if c not in goal_shape]
-                    if incorrect_chars:
-                        incorrect_char = incorrect_chars[0]
-                        current_shapes[slot_index] = current_shapes[slot_index].replace(incorrect_char, char, 1)
-                        current_shapes[i] = current_shapes[i].replace(char, incorrect_char, 1)
-                        steps.append(f"Swap {shape_names[incorrect_char]} from shape {slot_index+1} with {shape_names[char]} from shape {i+1}")
-                        print(f"After swap: {current_shapes}")  # Debug statement
-                        return  # Perform only one swap at a time
+        for j in range(i + 1, len(current_shapes)):
+            for char_i in current_shapes[i]:
+                if char_i not in goal_shapes[i]:
+                    for char_j in current_shapes[j]:
+                        if char_j not in goal_shapes[j]:
+                            # Perform the swap
+                            new_shapes = current_shapes[:]
+                            new_shapes[i] = new_shapes[i].replace(char_i, char_j, 1)
+                            new_shapes[j] = new_shapes[j].replace(char_j, char_i, 1)
+                            
+                            # Count mismatches
+                            mismatches = sum(1 for k in range(len(new_shapes)) if normalize(new_shapes[k]) != normalize(goal_shapes[k]))
+                            
+                            # Check if this swap reduces mismatches
+                            if mismatches < min_mismatches:
+                                min_mismatches = mismatches
+                                best_swap = (i, j, char_i, char_j)
+    
+    return best_swap
 
 def generate_steps(initial_shapes, goal_shapes):
     steps = []
@@ -44,18 +50,15 @@ def generate_steps(initial_shapes, goal_shapes):
     goal_shapes = [normalize(shape) for shape in goal_shapes]
     shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
 
-    print(f"Initial shapes: {current_shapes}")  # Debug statement
-    print(f"Goal shapes: {goal_shapes}")  # Debug statement
-
-    # Solve the first slot completely
-    solve_slot(current_shapes, 0, goal_shapes[0], steps, shape_names)
-    print(f"After solving first slot: {current_shapes}")  # Debug statement
-    
-    # Now, handle slots 2 and 3 if they are not already correct
-    solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
-    print(f"After solving second slot: {current_shapes}")  # Debug statement
-    solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
-    print(f"After solving third slot: {current_shapes}")  # Debug statement
+    while current_shapes != goal_shapes:
+        swap = find_best_swap(current_shapes, goal_shapes, shape_names)
+        if not swap:
+            break
+        i, j, char_i, char_j = swap
+        current_shapes[i] = current_shapes[i].replace(char_i, char_j, 1)
+        current_shapes[j] = current_shapes[j].replace(char_j, char_i, 1)
+        steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+        print(f"After swap: {current_shapes}")  # Debug statement
 
     return steps, current_shapes
 
