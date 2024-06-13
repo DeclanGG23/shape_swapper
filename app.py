@@ -1,7 +1,6 @@
 
 import streamlit as st
 
-# Mapping from shape pairs to 3D shapes
 shape_map = {
     "TT": "pyramid", "TS": "prism", "TC": "cone",
     "SS": "cube", "SC": "cylinder", "CC": "sphere",
