@@ -37,7 +37,7 @@ def generate_steps(initial_shapes, goal_shapes):
                                     new_i = current_shapes[i].replace(char_i, char_j, 1)
                                     new_j = current_shapes[j].replace(char_j, char_i, 1)
                                     current_shapes[i], current_shapes[j] = new_i, new_j
-                                    steps.append(f"Swap {shape_names[char_i]} from statue {i+1} with {shape_names[char_j]} from statue {j+1}")
+                                    steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
                                     found = True
                                     break
                             if found:
@@ -49,33 +49,51 @@ def generate_steps(initial_shapes, goal_shapes):
                 break
     return steps
 
-st.title('Shape Swapper App')
+def main():
+    st.title('Shape Swapper App')
+    st.write("Enter the initial shapes and the target abbreviation to see the steps needed to rearrange the shapes.")
 
-stored_input = st.text_input("Enter the 3-letter abbreviation (e.g., CST):").upper()
-shape1 = st.text_input("Enter the first 3D shape (e.g., pyramid, prism, cone, cube, cylinder, sphere):").lower()
-shape2 = st.text_input("Enter the second 3D shape (e.g., pyramid, prism, cone, cube, cylinder, sphere):").lower()
-shape3 = st.text_input("Enter the third 3D shape (e.g., pyramid, prism, cone, cube, cylinder, sphere):").lower()
+    # Input 1: Abbreviation
+    stored_input = st.text_input("Enter the 3-letter abbreviation (e.g., CST):").upper()
+    
+    # Dropdown options
+    shape_options = ["pyramid", "prism", "cone", "cube", "cylinder", "sphere"]
+    
+    # Input 2: First shape
+    shape1 = st.selectbox("Select the first 3D shape:", shape_options).lower()
+    
+    # Input 3: Second shape
+    shape2 = st.selectbox("Select the second 3D shape:", shape_options).lower()
+    
+    # Input 4: Third shape
+    shape3 = st.selectbox("Select the third 3D shape:", shape_options).lower()
 
-if st.button("Calculate"):
-    if stored_input and shape1 and shape2 and shape3:
-        # Map the 3D shape names to their 2D shape abbreviations
-        inverse_shape_map = {v: k for k, v in shape_map.items()}
-        initial_shapes = [inverse_shape_map[shape1], inverse_shape_map[shape2], inverse_shape_map[shape3]]
+    if st.button("Calculate"):
+        if stored_input and shape1 and shape2 and shape3:
+            try:
+                # Map the 3D shape names to their 2D shape abbreviations
+                inverse_shape_map = {v: k for k, v in shape_map.items()}
+                initial_shapes = [inverse_shape_map[shape1], inverse_shape_map[shape2], inverse_shape_map[shape3]]
 
-        # Generate goal shapes
-        goal_shapes = generate_goal_shapes(stored_input)
+                # Generate goal shapes
+                goal_shapes = generate_goal_shapes(stored_input)
 
-        # Generate steps to reach the goal
-        steps = generate_steps(initial_shapes, goal_shapes)
+                # Generate steps to reach the goal
+                steps = generate_steps(initial_shapes, goal_shapes)
 
-        # Display results
-        st.write(f"Stored abbreviation: {stored_input}")
-        st.write(f"Goal shapes: {', '.join(goal_shapes)}")
-        st.write("Steps to achieve the goal:")
-        if steps:
-            for i, step in enumerate(steps):
-                st.write(f"Step {i+1}: {step}")
+                # Display results
+                st.write(f"Stored abbreviation: {stored_input}")
+                st.write(f"Goal shapes: {', '.join(goal_shapes)}")
+                st.write("Steps to achieve the goal:")
+                if steps:
+                    for i, step in enumerate(steps):
+                        st.write(f"Step {i+1}: {step}")
+                else:
+                    st.write("No swaps needed, already in goal state.")
+            except KeyError:
+                st.error("Invalid shape entered. Please check your inputs.")
         else:
-            st.write("No swaps needed, already in goal state.")
-    else:
-        st.write("Please fill in all fields.")
+            st.warning("Please fill in all fields.")
+
+if __name__ == "__main__":
+    main()
