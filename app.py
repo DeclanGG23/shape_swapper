@@ -95,7 +95,7 @@ def main():
                 else:
                     st.write(f"Stored abbreviation: {stored_input}")
                     st.write(f"Goal shapes: {', '.join(goal_shapes)}")
-                    st.write("No possible swaps can achieve the goal state with the given shapes.")
+                    st.write("No possible swaps can achieve the goal state with the given shapes?.")
             except KeyError:
                 st.error("Invalid shape entered. Please check your inputs.")
         else:
