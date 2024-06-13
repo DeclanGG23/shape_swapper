@@ -87,7 +87,7 @@ def main():
     st.write("Enter the initial shapes and the target abbreviation to see the steps needed to rearrange the shapes.")
 
     # Input 1: Abbreviation
-    stored_input = st.text_input("Enter the 3-letter abbreviation (e.g., CST):").upper()
+    stored_input = st.text_input("Enter the 3-letter abbreviation?? (e.g., CST):").upper()
     
     # Dropdown options
     shape_options = ["pyramid", "prism", "cone", "cube", "cylinder", "sphere"]
