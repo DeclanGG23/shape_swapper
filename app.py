@@ -17,24 +17,11 @@ def generate_goal_shapes(stored_input):
         goal_shapes.append(remaining_shapes)
     return goal_shapes
 
-# Function to determine the steps required to rearrange the shapes to meet the goal
-def generate_steps(initial_shapes, goal_shapes):
-    steps = []
-    current_shapes = initial_shapes[:]
-    shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
-
-    # Solve the first slot completely
-    solve_slot(current_shapes, 0, goal_shapes[0], steps, shape_names)
-    
-    # Now, handle slots 2 and 3 if they are not already correct
-    if current_shapes[1] != goal_shapes[1] or current_shapes[2] != goal_shapes[2]:
-        solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
-        if current_shapes[2] != goal_shapes[2]:
-            solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
-
-    return steps, current_shapes
+def normalize(shape):
+    return ''.join(sorted(shape))
 
 def solve_slot(current_shapes, slot_index, goal_shape, steps, shape_names):
+    goal_shape = normalize(goal_shape)
     for i in range(len(current_shapes)):
         if i != slot_index:
             needed_chars = [c for c in goal_shape if c not in current_shapes[slot_index]]
@@ -48,6 +35,23 @@ def solve_slot(current_shapes, slot_index, goal_shape, steps, shape_names):
                         current_shapes[i] = current_shapes[i].replace(char, incorrect_char, 1)
                         steps.append(f"Swap {shape_names[incorrect_char]} from shape {slot_index+1} with {shape_names[char]} from shape {i+1}")
                         return  # Perform only one swap at a time
+
+def generate_steps(initial_shapes, goal_shapes):
+    steps = []
+    current_shapes = [normalize(shape) for shape in initial_shapes]
+    goal_shapes = [normalize(shape) for shape in goal_shapes]
+    shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
+
+    # Solve the first slot completely
+    solve_slot(current_shapes, 0, goal_shapes[0], steps, shape_names)
+    
+    # Now, handle slots 2 and 3 if they are not already correct
+    if current_shapes[1] != goal_shapes[1] or current_shapes[2] != goal_shapes[2]:
+        solve_slot(current_shapes, 1, goal_shapes[1], steps, shape_names)
+        if current_shapes[2] != goal_shapes[2]:
+            solve_slot(current_shapes, 2, goal_shapes[2], steps, shape_names)
+
+    return steps, current_shapes
 
 def main():
     st.title('Shape Swapper App')
@@ -82,7 +86,7 @@ def main():
                 steps, final_shapes = generate_steps(initial_shapes, goal_shapes)
 
                 # Check if the goal shapes were achieved
-                if final_shapes == goal_shapes:
+                if final_shapes == [normalize(shape) for shape in goal_shapes]:
                     # Display results
                     st.write(f"Stored abbreviation: {stored_input}")
                     st.write(f"Goal shapes: {', '.join(goal_shapes)}")
