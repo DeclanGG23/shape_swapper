@@ -23,30 +23,31 @@ def generate_steps(initial_shapes, goal_shapes):
     current_shapes = initial_shapes[:]
     shape_names = {'C': 'circle', 'S': 'square', 'T': 'triangle'}
 
-    for i in range(3):
-        target_shape = goal_shapes[i]
-        while current_shapes[i] != target_shape:
-            found = False
-            for j in range(3):
-                if i != j:
-                    for char_i in current_shapes[i]:
-                        if char_i not in target_shape:
-                            for char_j in current_shapes[j]:
-                                if char_j in target_shape and char_j not in current_shapes[i]:
-                                    # Perform the swap
-                                    new_i = current_shapes[i].replace(char_i, char_j, 1)
-                                    new_j = current_shapes[j].replace(char_j, char_i, 1)
-                                    current_shapes[i], current_shapes[j] = new_i, new_j
-                                    steps.append(f"Swap {shape_names[char_i]} from statue {i+1} with {shape_names[char_j]} from statue {j+1}")
-                                    found = True
+    while current_shapes != goal_shapes:
+        made_swap = False
+        for i in range(3):
+            if current_shapes[i] != goal_shapes[i]:
+                for j in range(3):
+                    if i != j:
+                        for char_i in current_shapes[i]:
+                            if char_i not in goal_shapes[i]:
+                                for char_j in current_shapes[j]:
+                                    if char_j in goal_shapes[i] and char_j not in current_shapes[i]:
+                                        # Perform the swap
+                                        new_i = current_shapes[i].replace(char_i, char_j, 1)
+                                        new_j = current_shapes[j].replace(char_j, char_i, 1)
+                                        current_shapes[i], current_shapes[j] = new_i, new_j
+                                        steps.append(f"Swap {shape_names[char_i]} from shape {i+1} with {shape_names[char_j]} from shape {j+1}")
+                                        made_swap = True
+                                        break
+                                if made_swap:
                                     break
-                            if found:
-                                break
-                if found:
+                        if made_swap:
+                            break
+                if made_swap:
                     break
-            if not found:
-                # If no valid swaps found, break to avoid infinite loop
-                break
+        if not made_swap:
+            break  # No valid swap found, exit the loop
     return steps, current_shapes
 
 def main():
