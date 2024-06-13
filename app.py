@@ -59,6 +59,11 @@ def generate_steps(initial_shapes, goal_shapes):
 
     return steps, current_shapes
 
+def shapes_match(final_shapes, goal_shapes):
+    normalized_final_shapes = [normalize(shape) for shape in final_shapes]
+    normalized_goal_shapes = [normalize(shape) for shape in goal_shapes]
+    return normalized_final_shapes == normalized_goal_shapes
+
 def main():
     st.title('Shape Swapper App')
     st.write("Enter the initial shapes and the target abbreviation to see the steps needed to rearrange the shapes.")
@@ -92,7 +97,7 @@ def main():
                 steps, final_shapes = generate_steps(initial_shapes, goal_shapes)
 
                 # Check if the goal shapes were achieved
-                if final_shapes == [normalize(shape) for shape in goal_shapes]:
+                if shapes_match(final_shapes, goal_shapes):
                     # Display results
                     st.write(f"Stored abbreviation: {stored_input}")
                     st.write(f"Goal shapes: {', '.join(goal_shapes)}")
